@@ -12,7 +12,7 @@ const Home = lazy(() => import("@/Pages/Home"));
 
 const AppRouter = () => {
   const {
-    state: { authInitialState },
+    state: { loggedIn },
   } = useStore();
 
   return (
@@ -21,21 +21,21 @@ const AppRouter = () => {
       <Routes>
         <Route
           path="/"
-          element={authInitialState ? <HomeLayout /> : <Navigate to="login" />}
+          element={loggedIn ? <HomeLayout /> : <Navigate to="login" />}
         >
           <Route index element={<Home />} />
           <Route path="/task/:taskName" element={<Task />} />
         </Route>
         <Route
           path="/"
-          element={!authInitialState ? <AuthPage /> : <Navigate to="/" />}
+          element={!loggedIn ? <AuthPage /> : <Navigate to="/" />}
         >
           <Route path="login" element={<AuthPage />} />
           <Route path="/" element={<Navigate to="/login" />} />
         </Route>
         <Route
           path="/*"
-          element={authInitialState ? <NotFound /> : <Navigate to="/login" />}
+          element={loggedIn ? <NotFound /> : <Navigate to="/login" />}
         />
       </Routes>
     </Layout>

@@ -3,7 +3,7 @@ type IProps = {
 };
 
 function Layout({ children }: IProps) {
-  return <div>{children}</div>;
+  return <div className="sticky top-0 h-screen bg-slate-100">{children}</div>;
 }
 
 export default Layout;

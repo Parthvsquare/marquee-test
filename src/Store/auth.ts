@@ -1,8 +1,15 @@
 export const authInitialState = {
   loggedIn: false,
+  userName: "Parth V",
 };
 
 export const authAction = {
-  SET_USER_LOGIN: (state: any, payload: boolean) => payload,
-  SET_USER_LOGOUT: (state: any, payload: boolean) => payload,
+  SET_USER_AUTH: (state: any, payload: boolean) => ({
+    ...state,
+    loggedIn: payload,
+  }),
+  SET_USER_NAME: (state: any, payload: string) => ({
+    ...state,
+    userName: payload,
+  }),
 };

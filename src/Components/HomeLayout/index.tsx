@@ -3,15 +3,7 @@ import { Outlet } from "react-router-dom";
 
 function HomeLayout() {
   return (
-    <div
-      style={{
-        margin: "24px 16px",
-        padding: 24,
-        minHeight: 280,
-        overflow: "scroll",
-      }}
-      className="h-full"
-    >
+    <div className="h-[calc(100vh_-_64px)]">
       <Suspense>
         <Outlet />
       </Suspense>
