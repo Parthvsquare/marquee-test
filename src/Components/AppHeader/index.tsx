@@ -1,10 +1,13 @@
 import { useStore } from "@/Store";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function AppHeader() {
   const {
     state: { loggedIn, userName },
+    dispatch,
   } = useStore();
+  const navigate = useNavigate();
 
   const [dropdown, setDropdown] = useState(false);
   const dropDownRef = useRef(null);
@@ -21,6 +24,15 @@ function AppHeader() {
     ) {
       setDropdown(false);
     }
+  };
+
+  const signOut = () => {
+    dispatch({
+      type: "SET_USER_AUTH",
+      payload: false,
+    });
+    localStorage.setItem("auth", JSON.stringify(false));
+    navigate("/login");
   };
 
   useEffect(() => {
@@ -61,6 +73,7 @@ function AppHeader() {
           <li className="flex justify-center">
             <button
               type="button"
+              onClick={signOut}
               className="mb-2  rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
             >
               Sign Out

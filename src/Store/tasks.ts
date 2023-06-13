@@ -25,27 +25,30 @@ export const todoActions = {
   ) => ({
     ...state,
     tasks: [
-      ...state.tasks,
       {
         id: payload.id,
         title: payload.title,
         description: payload.description,
-        due_date: payload.due_date,
-        completed: payload.completed,
+        due_date: payload.due_date ?? new Date().toLocaleDateString,
+        completed: payload.completed ?? false,
       },
+      ...state.tasks,
     ],
   }),
   REMOVE_TASK: (state: any, payload: number) => ({
     ...state,
     tasks: state.tasks.filter((task: Todo) => task.id !== payload),
   }),
-  ADD_SUBTASK: (state: any, payload: { taskId: number; subtask: Subtask }) => ({
+  CREATE_SUBTASK: (
+    state: any,
+    payload: { taskId: number; subtask: Subtask },
+  ) => ({
     ...state,
     tasks: state.tasks.map((task: Todo) => {
       if (task.id === payload.taskId) {
         return {
-          ...task,
           subtasks: [...(task.subtasks || []), payload.subtask],
+          ...task,
         };
       }
       return task;

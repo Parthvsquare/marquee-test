@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useStore } from "@/Store";
-import { Todo } from "@/types/custom";
+import { Subtask, Todo } from "@/types/custom";
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -82,6 +82,50 @@ function Home() {
     });
   };
 
+  const createTask = ({
+    title,
+    description,
+    event,
+  }: {
+    title: string;
+    description: string;
+    event: React.KeyboardEvent<HTMLInputElement>;
+  }) => {
+    if (event.key === "Enter") {
+      const lastIndex = tasks.length + 1;
+      dispatch({
+        type: "CREATE_TASK",
+        payload: { id: lastIndex, title, description, completed: false },
+      });
+    }
+  };
+
+  const createSubTask = ({
+    taskIndex,
+    title,
+    event,
+  }: {
+    taskIndex: number;
+    title: string;
+    event: React.KeyboardEvent<HTMLInputElement>;
+  }) => {
+    if (event.key === "Enter") {
+      const taskId = tasks[taskIndex].id;
+      const lastIndex = tasks[taskIndex].subtask
+        ? tasks[taskIndex].subtask.length + 1
+        : 0;
+      const inputSubtask: Subtask = {
+        completed: false,
+        id: lastIndex,
+        title,
+      };
+      dispatch({
+        type: "CREATE_SUBTASK",
+        payload: { taskId, subtask: inputSubtask },
+      });
+    }
+  };
+
   return (
     <div className="px-10">
       <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
@@ -94,8 +138,19 @@ function Home() {
         data-active-classes="bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
         data-inactive-classes="text-gray-500 dark:text-gray-400"
       >
+        <div className="mx-8 py-5">
+          <input
+            type="text"
+            id="large-input"
+            placeholder="Add New Todo"
+            onKeyDown={(e) =>
+              createTask({ description: "test", event: e, title: "title 1" })
+            }
+            className="sm:text-md block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+          />
+        </div>
         {tasks &&
-          tasks.map((items: Todo, index: any) => {
+          tasks.map((items: Todo, index: number) => {
             const todos = items as Todo;
             const accordionShouldOpen = opened?.includes(todos.id);
             return (
@@ -155,59 +210,71 @@ function Home() {
                   />
                 </h2>
 
-                {accordionShouldOpen &&
-                  (todos.subtasks ? (
-                    todos.subtasks.map((subtask) => {
-                      return (
-                        <div
-                          key={todos.id + subtask.id}
-                          id="accordion-flush-body-1"
-                          className="mx-8 flex items-center justify-between border-b border-gray-200"
-                        >
-                          <div className="flex gap-2  py-5  dark:border-gray-700">
-                            <span
-                              id={todos.id.toString()}
-                              className={` flex h-7 w-7 cursor-pointer items-center
+                {accordionShouldOpen && (
+                  <>
+                    <div className="mx-8 py-5">
+                      <input
+                        type="text"
+                        onKeyDown={(e) =>
+                          createSubTask({
+                            title: "subtask 1",
+                            taskIndex: index,
+                            event: e,
+                          })
+                        }
+                        placeholder={`+ Add Subtask for ${todos.title}`}
+                        className="sm:text-md block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      />
+                    </div>
+                    {todos.subtasks &&
+                      todos.subtasks.map((subtask) => {
+                        return (
+                          <div
+                            key={todos.id + subtask.id}
+                            id="accordion-flush-body-1"
+                            className="mx-8 flex items-center justify-between border-b border-gray-200"
+                          >
+                            <div className="flex gap-2  py-5  dark:border-gray-700">
+                              <span
+                                id={todos.id.toString()}
+                                className={` flex h-7 w-7 cursor-pointer items-center
                             justify-center rounded-full border border-white ${
                               subtask.completed ? "bg-green-700" : "bg-white"
                             } transition-all
                             hover:border-[#36d344]`}
+                                onClick={() =>
+                                  doneWithSubTask({
+                                    subtaskId: subtask.id,
+                                    checked: !subtask.completed,
+                                    taskId: todos.id,
+                                  })
+                                }
+                              >
+                                <FontAwesomeIcon
+                                  icon={faCheck}
+                                  className=" text-white"
+                                />
+                              </span>
+                              <p className="mb-2 text-gray-500 dark:text-gray-400">
+                                {subtask.title}
+                              </p>
+                            </div>
+
+                            <FontAwesomeIcon
+                              icon={faCircleMinus}
+                              className="pr-2 text-xl text-red-700"
                               onClick={() =>
-                                doneWithSubTask({
+                                removeSubTask({
                                   subtaskId: subtask.id,
-                                  checked: !subtask.completed,
                                   taskId: todos.id,
                                 })
                               }
-                            >
-                              <FontAwesomeIcon
-                                icon={faCheck}
-                                className=" text-white"
-                              />
-                            </span>
-                            <p className="mb-2 text-gray-500 dark:text-gray-400">
-                              {subtask.title}
-                            </p>
+                            />
                           </div>
-
-                          <FontAwesomeIcon
-                            icon={faCircleMinus}
-                            className="pr-2 text-xl text-red-700"
-                            onClick={() =>
-                              removeSubTask({
-                                subtaskId: subtask.id,
-                                taskId: todos.id,
-                              })
-                            }
-                          />
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div>
-                      <span>Add Todos</span>
-                    </div>
-                  ))}
+                        );
+                      })}
+                  </>
+                )}
               </React.Fragment>
             );
           })}
