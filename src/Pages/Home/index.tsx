@@ -44,8 +44,6 @@ function Home() {
     resolver: zodResolver(inputSchema),
   });
 
-  // console.log("===> ~ file: index.tsx:43 ~ Home ~ errors:", errors.subtasks);
-
   const { update } = useFieldArray({
     control,
     name: "subtasks",
@@ -172,6 +170,7 @@ function Home() {
         });
         return;
       } else {
+        setError(`subtasks.${taskIndex + 1}.subtaskName` as const, {});
         const taskId = tasks[taskIndex].id;
         const lastIndex = tasks[taskIndex].subtasks
           ? tasks[taskIndex].subtasks.length + 1
@@ -295,10 +294,10 @@ function Home() {
                         placeholder={`+ Add Subtask for ${todos.title}`}
                         className="sm:text-md block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       />
-                      {errors.subtasks && (
+                      {errors.subtasks && errors.subtasks[todos.id] && (
                         <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                           <span className="font-medium">
-                            {errors.subtasks.message}
+                            {errors.subtasks[todos.id]?.subtaskName?.message}
                           </span>
                         </p>
                       )}
