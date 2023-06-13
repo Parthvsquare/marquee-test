@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "@/Store";
 import { Subtask, Todo } from "@/types/custom";
 import React from "react";
@@ -8,7 +8,16 @@ import {
   faCircleMinus,
   faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
+const inputSchema = z.object({
+  task: z.string().min(5, { message: "Task is too short" }),
+  subTask: z.string().min(4, { message: "SubTask is too short" }),
+});
+
+type IFormInput = z.infer<typeof inputSchema>;
 function Home() {
   const {
     state: { tasks },
@@ -16,6 +25,42 @@ function Home() {
   } = useStore();
 
   const [opened, setOpened] = useState<number[]>();
+
+  const {
+    register,
+    reset,
+    getValues,
+    setError,
+    watch,
+    formState: { errors },
+  } = useForm<IFormInput>({
+    resolver: zodResolver(inputSchema),
+  });
+
+  useEffect(() => {
+    const subscription = watch((value) => {
+      if (value && value.task && value.task.length < 6) {
+        setError(
+          "task",
+          { type: "focus", message: "Task is too small" },
+          { shouldFocus: true },
+        );
+      } else {
+        setError("task", { message: "" });
+      }
+
+      if (value && value.subTask && value.subTask.length < 6) {
+        setError(
+          "subTask",
+          { type: "focus", message: "Task is too small" },
+          { shouldFocus: true },
+        );
+      } else {
+        setError("subTask", { message: "" });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
   const accordionOpen = ({ taskId }: { taskId: number }) => {
     const expandedAccordion = structuredClone(opened);
@@ -83,46 +128,58 @@ function Home() {
   };
 
   const createTask = ({
-    title,
-    description,
     event,
   }: {
-    title: string;
-    description: string;
     event: React.KeyboardEvent<HTMLInputElement>;
   }) => {
     if (event.key === "Enter") {
-      const lastIndex = tasks.length + 1;
-      dispatch({
-        type: "CREATE_TASK",
-        payload: { id: lastIndex, title, description, completed: false },
-      });
+      const values = getValues();
+      if (values.task.length < 6) {
+        return;
+      } else {
+        const lastIndex = tasks.length + 1;
+        dispatch({
+          type: "CREATE_TASK",
+          payload: {
+            id: lastIndex,
+            title: values.task,
+            description: "",
+            completed: false,
+          },
+        });
+        reset({ task: "" });
+      }
     }
   };
 
   const createSubTask = ({
     taskIndex,
-    title,
     event,
   }: {
     taskIndex: number;
-    title: string;
     event: React.KeyboardEvent<HTMLInputElement>;
   }) => {
     if (event.key === "Enter") {
-      const taskId = tasks[taskIndex].id;
-      const lastIndex = tasks[taskIndex].subtask
-        ? tasks[taskIndex].subtask.length + 1
-        : 0;
-      const inputSubtask: Subtask = {
-        completed: false,
-        id: lastIndex,
-        title,
-      };
-      dispatch({
-        type: "CREATE_SUBTASK",
-        payload: { taskId, subtask: inputSubtask },
-      });
+      const values = getValues();
+      if (values.subTask.length < 6) {
+        return;
+      } else {
+        const taskId = tasks[taskIndex].id;
+        const lastIndex = tasks[taskIndex].subtask
+          ? tasks[taskIndex].subtask.length + 1
+          : 0;
+        const values = getValues();
+        const inputSubtask: Subtask = {
+          completed: false,
+          id: lastIndex,
+          title: values.subTask,
+        };
+        dispatch({
+          type: "CREATE_SUBTASK",
+          payload: { taskId, subtask: inputSubtask },
+        });
+        reset({ subTask: "" });
+      }
     }
   };
 
@@ -141,13 +198,17 @@ function Home() {
         <div className="mx-8 py-5">
           <input
             type="text"
-            id="large-input"
+            {...register("task")}
             placeholder="Add New Todo"
-            onKeyDown={(e) =>
-              createTask({ description: "test", event: e, title: "title 1" })
-            }
+            onKeyDown={(e) => createTask({ event: e })}
             className="sm:text-md block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
           />
+
+          {errors.task && (
+            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+              <span className="font-medium">{errors.task.message}</span>
+            </p>
+          )}
         </div>
         {tasks &&
           tasks.map((items: Todo, index: number) => {
@@ -215,9 +276,9 @@ function Home() {
                     <div className="mx-8 py-5">
                       <input
                         type="text"
+                        {...register("subTask")}
                         onKeyDown={(e) =>
                           createSubTask({
-                            title: "subtask 1",
                             taskIndex: index,
                             event: e,
                           })

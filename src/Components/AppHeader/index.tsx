@@ -16,7 +16,7 @@ function AppHeader() {
     loggedIn && setDropdown(!dropdown);
   };
 
-  const handleOutsideClick = (e: any) => {
+  const handleOutsideClick = (e: { target: any }) => {
     if (
       dropDownRef?.current &&
       //@ts-expect-error ref has some issue
