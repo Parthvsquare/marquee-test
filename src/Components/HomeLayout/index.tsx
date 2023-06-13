@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 
 function HomeLayout() {
   return (
-    <div className="h-[calc(100vh_-_64px)] overflow-scroll">
+    <div className="mx-auto h-[calc(100vh_-_64px)] max-w-6xl overflow-scroll">
       <Suspense>
         <Outlet />
       </Suspense>

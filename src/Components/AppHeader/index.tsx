@@ -44,7 +44,7 @@ function AppHeader() {
   }, [dropdown]);
 
   return (
-    <div className="flex h-16 justify-between px-10 py-5">
+    <div className="mx-auto flex h-16 max-w-6xl justify-between px-1 py-5">
       <div className="font-xl relative">{loggedIn ? userName : "Hello"}</div>
 
       <button

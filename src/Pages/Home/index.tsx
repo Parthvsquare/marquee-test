@@ -252,10 +252,10 @@ function Home() {
 
                     <span
                       id={todos.id.toString()}
-                      className={` flex h-7 w-7 cursor-pointer items-center
-                      justify-center rounded-full border border-white ${
+                      className={`group flex h-7 w-7 cursor-pointer
+                      items-center justify-center rounded-full border border-green-300 ${
                         todos.completed ? "bg-green-700" : "bg-white"
-                      } transition-all
+                      } transition-all 
                       hover:border-[#36d344]`}
                       onClick={() =>
                         doneWithTask({
@@ -264,7 +264,12 @@ function Home() {
                         })
                       }
                     >
-                      <FontAwesomeIcon icon={faCheck} className="text-white" />
+                      <FontAwesomeIcon
+                        icon={faCheck}
+                        className={`text-white ${
+                          !todos.completed ? " group-hover:text-green-700" : " "
+                        }`}
+                      />
                     </span>
 
                     <span>{todos.title}</span>
@@ -313,8 +318,8 @@ function Home() {
                             <div className="flex gap-2  py-5  dark:border-gray-700">
                               <span
                                 id={todos.id.toString()}
-                                className={` flex h-7 w-7 cursor-pointer items-center
-                            justify-center rounded-full border border-white ${
+                                className={`group flex h-7 w-7 cursor-pointer items-center
+                            justify-center rounded-full border border-green-300 ${
                               subtask.completed ? "bg-green-700" : "bg-white"
                             } transition-all
                             hover:border-[#36d344]`}
@@ -328,7 +333,11 @@ function Home() {
                               >
                                 <FontAwesomeIcon
                                   icon={faCheck}
-                                  className=" text-white"
+                                  className={`text-white ${
+                                    !subtask.completed
+                                      ? "group-hover:text-green-700"
+                                      : ""
+                                  }`}
                                 />
                               </span>
                               <p className="mb-2 text-gray-500 dark:text-gray-400">
