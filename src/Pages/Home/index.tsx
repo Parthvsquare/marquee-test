@@ -44,7 +44,7 @@ function Home() {
     resolver: zodResolver(inputSchema),
   });
 
-  const { update } = useFieldArray({
+  useFieldArray({
     control,
     name: "subtasks",
   });
