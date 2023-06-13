@@ -210,7 +210,7 @@ function Home() {
             </p>
           )}
         </div>
-        {tasks &&
+        {tasks ? (
           tasks.map((items: Todo, index: number) => {
             const todos = items as Todo;
             const accordionShouldOpen = opened?.includes(todos.id);
@@ -338,7 +338,14 @@ function Home() {
                 )}
               </React.Fragment>
             );
-          })}
+          })
+        ) : (
+          <div>
+            <span className="self-center whitespace-nowrap text-2xl font-semibold text-gray-500 dark:text-white">
+              No Todo's
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
