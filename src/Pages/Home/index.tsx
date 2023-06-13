@@ -3,7 +3,11 @@ import { useStore } from "@/Store";
 import { Todo } from "@/types/custom";
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faCircleMinus,
+  faTrashCan,
+} from "@fortawesome/free-solid-svg-icons";
 
 function Home() {
   const {
@@ -13,16 +17,7 @@ function Home() {
 
   const [opened, setOpened] = useState<number[]>();
 
-  // useEffect(() => {
-  //   if (InitialTasks)
-  //     dispatch({
-  //       type: "SET_TODOs",
-  //       payload: InitialTasks,
-  //     });
-  // }, [InitialTasks]);
-
   const accordionOpen = ({ taskId }: { taskId: number }) => {
-    console.log("===> ~ file: index.tsx:23 ~ accordionOpen ~ taskId:", taskId);
     const expandedAccordion = structuredClone(opened);
     if (expandedAccordion && expandedAccordion?.includes(taskId)) {
       const index = expandedAccordion?.indexOf(taskId);
@@ -66,6 +61,27 @@ function Home() {
       payload: { taskId, subtaskId, checked },
     });
   };
+
+  const removeTask = ({ taskId }: { taskId: number }) => {
+    dispatch({
+      type: "REMOVE_TASK",
+      payload: taskId,
+    });
+  };
+
+  const removeSubTask = ({
+    taskId,
+    subtaskId,
+  }: {
+    taskId: number;
+    subtaskId: number;
+  }) => {
+    dispatch({
+      type: "REMOVE_SUBTASK",
+      payload: { taskId, subtaskId },
+    });
+  };
+
   return (
     <div className="px-10">
       <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
@@ -84,25 +100,29 @@ function Home() {
             const accordionShouldOpen = opened?.includes(todos.id);
             return (
               <React.Fragment key={todos.id}>
-                <h2 id="accordion-flush-heading-1">
+                <h2
+                  id="accordion-flush-heading-1"
+                  className="flex items-center border-b border-gray-200"
+                >
                   <button
                     type="button"
-                    className="flex w-full items-center justify-start gap-2 border-b border-gray-200 py-5 text-left font-medium text-gray-500 dark:border-gray-700 dark:text-gray-400"
-                    data-accordion-target="#accordion-flush-body-1"
-                    aria-expanded="true"
+                    className="flex w-full items-center justify-start gap-2
+                     py-5 text-left font-medium
+                    text-gray-500 dark:border-gray-700 dark:text-gray-400"
                     aria-controls="accordion-flush-body-1"
                   >
                     <svg
                       data-accordion-icon
                       className={`h-6 w-6 shrink-0 ${
                         accordionShouldOpen && "rotate-180"
+                      }  transition-all ${
+                        !todos.subtasks?.length && "fill-slate-400"
                       }`}
                       viewBox="0 0 20 20"
                       xmlns="http://www.w3.org/2000/svg"
                       onClick={() => accordionOpen({ taskId: todos.id })}
                     >
                       <path
-                        fillRule="evenodd"
                         d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                         clipRule="evenodd"
                       ></path>
@@ -127,45 +147,67 @@ function Home() {
 
                     <span>{todos.title}</span>
                   </button>
+
+                  <FontAwesomeIcon
+                    icon={faTrashCan}
+                    className="pr-2 text-xl text-red-700"
+                    onClick={() => removeTask({ taskId: todos.id })}
+                  />
                 </h2>
 
                 {accordionShouldOpen &&
-                  todos.subtasks &&
-                  todos.subtasks.map((subtask) => {
-                    return (
-                      <div
-                        id="accordion-flush-body-1"
-                        className=""
-                        aria-labelledby="accordion-flush-heading-1"
-                      >
-                        <div className="flex gap-2 border-b border-gray-200 py-5 pl-8 dark:border-gray-700">
-                          <span
-                            id={todos.id.toString()}
-                            className={` flex h-7 w-7 cursor-pointer items-center
+                  (todos.subtasks ? (
+                    todos.subtasks.map((subtask) => {
+                      return (
+                        <div
+                          key={todos.id + subtask.id}
+                          id="accordion-flush-body-1"
+                          className="mx-8 flex items-center justify-between border-b border-gray-200"
+                        >
+                          <div className="flex gap-2  py-5  dark:border-gray-700">
+                            <span
+                              id={todos.id.toString()}
+                              className={` flex h-7 w-7 cursor-pointer items-center
                             justify-center rounded-full border border-white ${
                               subtask.completed ? "bg-green-700" : "bg-white"
                             } transition-all
                             hover:border-[#36d344]`}
+                              onClick={() =>
+                                doneWithSubTask({
+                                  subtaskId: subtask.id,
+                                  checked: !subtask.completed,
+                                  taskId: todos.id,
+                                })
+                              }
+                            >
+                              <FontAwesomeIcon
+                                icon={faCheck}
+                                className=" text-white"
+                              />
+                            </span>
+                            <p className="mb-2 text-gray-500 dark:text-gray-400">
+                              {subtask.title}
+                            </p>
+                          </div>
+
+                          <FontAwesomeIcon
+                            icon={faCircleMinus}
+                            className="pr-2 text-xl text-red-700"
                             onClick={() =>
-                              doneWithSubTask({
+                              removeSubTask({
                                 subtaskId: subtask.id,
-                                checked: !subtask.completed,
                                 taskId: todos.id,
                               })
                             }
-                          >
-                            <FontAwesomeIcon
-                              icon={faCheck}
-                              className=" text-white"
-                            />
-                          </span>
-                          <p className="mb-2 text-gray-500 dark:text-gray-400">
-                            {subtask.title}
-                          </p>
+                          />
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  ) : (
+                    <div>
+                      <span>Add Todos</span>
+                    </div>
+                  ))}
               </React.Fragment>
             );
           })}

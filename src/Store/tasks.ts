@@ -5,17 +5,15 @@ export const todo = {
   tasks: [...InitialTasks],
 };
 
-console.log("===> ~ file: tasks.ts:6 ~ todo:", todo.tasks);
-
 export const todoActions = {
-  SET_TODOs: (state: any, payload: Todo[]) => {
+  SET_TASKs: (state: any, payload: Todo[]) => {
     console.log(payload);
     return {
       ...state,
       tasks: payload,
     };
   },
-  CREATE_TODO: (
+  CREATE_TASK: (
     state: any,
     payload: {
       id: number;
@@ -37,7 +35,7 @@ export const todoActions = {
       },
     ],
   }),
-  REMOVE_TODO: (state: any, payload: number) => ({
+  REMOVE_TASK: (state: any, payload: number) => ({
     ...state,
     tasks: state.tasks.filter((task: Todo) => task.id !== payload),
   }),
@@ -100,6 +98,45 @@ export const todoActions = {
             return subtask;
           },
         );
+
+        return {
+          ...task,
+          subtasks: updatedSubtasks,
+        };
+      }
+      return task;
+    }),
+  }),
+  EDIT_TASK: (state: any, payload: Todo) => ({
+    ...state,
+    tasks: state.tasks.map((task: Todo) => {
+      if (task.id === payload.id) {
+        return {
+          ...task,
+          title: payload.title,
+          description: payload.description,
+          due_date: payload.due_date,
+        };
+      }
+      return task;
+    }),
+  }),
+  EDIT_SUBTASK: (
+    state: any,
+    payload: { taskId: number; subtask: Subtask },
+  ) => ({
+    ...state,
+    tasks: state.tasks.map((task: Todo) => {
+      if (task.id === payload.taskId && task.subtasks) {
+        const updatedSubtasks = task.subtasks.map((subtask: Subtask) => {
+          if (subtask.id === payload.subtask.id) {
+            return {
+              ...subtask,
+              title: payload.subtask.title,
+            };
+          }
+          return subtask;
+        });
 
         return {
           ...task,

@@ -6,7 +6,7 @@ function AppHeader() {
     state: { loggedIn, userName },
   } = useStore();
 
-  const [dropdown, setDropdown] = useState(true);
+  const [dropdown, setDropdown] = useState(false);
   const dropDownRef = useRef(null);
 
   const openDropdown = () => {
