@@ -8,16 +8,21 @@ import {
   faCircleMinus,
   faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const inputSchema = z.object({
   task: z.string().min(5, { message: "Task is too short" }),
-  subTask: z.string().min(4, { message: "SubTask is too short" }),
+  subtasks: z
+    .object({
+      subtaskName: z.string(),
+    })
+    .array(),
 });
 
 type IFormInput = z.infer<typeof inputSchema>;
+
 function Home() {
   const {
     state: { tasks },
@@ -32,9 +37,18 @@ function Home() {
     getValues,
     setError,
     watch,
+    setValue,
+    control,
     formState: { errors },
   } = useForm<IFormInput>({
     resolver: zodResolver(inputSchema),
+  });
+
+  // console.log("===> ~ file: index.tsx:43 ~ Home ~ errors:", errors.subtasks);
+
+  const { update } = useFieldArray({
+    control,
+    name: "subtasks",
   });
 
   useEffect(() => {
@@ -47,16 +61,6 @@ function Home() {
         );
       } else {
         setError("task", { message: "" });
-      }
-
-      if (value && value.subTask && value.subTask.length < 6) {
-        setError(
-          "subTask",
-          { type: "focus", message: "Task is too small" },
-          { shouldFocus: true },
-        );
-      } else {
-        setError("subTask", { message: "" });
       }
     });
     return () => subscription.unsubscribe();
@@ -161,24 +165,27 @@ function Home() {
   }) => {
     if (event.key === "Enter") {
       const values = getValues();
-      if (values.subTask.length < 6) {
+      const subTaskValue = values.subtasks[taskIndex + 1];
+      if (subTaskValue.subtaskName.length < 6) {
+        setError(`subtasks.${taskIndex + 1}.subtaskName` as const, {
+          message: "Subtask is not long enough",
+        });
         return;
       } else {
         const taskId = tasks[taskIndex].id;
-        const lastIndex = tasks[taskIndex].subtask
-          ? tasks[taskIndex].subtask.length + 1
+        const lastIndex = tasks[taskIndex].subtasks
+          ? tasks[taskIndex].subtasks.length + 1
           : 0;
-        const values = getValues();
         const inputSubtask: Subtask = {
           completed: false,
           id: lastIndex,
-          title: values.subTask,
+          title: subTaskValue.subtaskName,
         };
         dispatch({
           type: "CREATE_SUBTASK",
           payload: { taskId, subtask: inputSubtask },
         });
-        reset({ subTask: "" });
+        setValue(`subtasks.${taskIndex + 1}.subtaskName` as const, "");
       }
     }
   };
@@ -276,7 +283,9 @@ function Home() {
                     <div className="mx-8 py-5">
                       <input
                         type="text"
-                        {...register("subTask")}
+                        {...register(
+                          `subtasks.${todos.id}.subtaskName` as const,
+                        )}
                         onKeyDown={(e) =>
                           createSubTask({
                             taskIndex: index,
@@ -286,6 +295,13 @@ function Home() {
                         placeholder={`+ Add Subtask for ${todos.title}`}
                         className="sm:text-md block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       />
+                      {errors.subtasks && (
+                        <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                          <span className="font-medium">
+                            {errors.subtasks.message}
+                          </span>
+                        </p>
+                      )}
                     </div>
                     {todos.subtasks &&
                       todos.subtasks.map((subtask) => {

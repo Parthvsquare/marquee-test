@@ -47,8 +47,8 @@ export const todoActions = {
     tasks: state.tasks.map((task: Todo) => {
       if (task.id === payload.taskId) {
         return {
-          subtasks: [...(task.subtasks || []), payload.subtask],
           ...task,
+          subtasks: [payload.subtask, ...(task.subtasks || [])],
         };
       }
       return task;
