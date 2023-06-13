@@ -5,13 +5,16 @@ import {
   useReducer,
 } from "react";
 import { authAction, authInitialState } from "./auth";
+import { todo, todoActions } from "./tasks";
 
 const iInitialValue: any = {
   ...authInitialState,
+  ...todo,
 };
 
 const Actions = {
   ...authAction,
+  ...todoActions,
 };
 
 const reducer = (state: any, action: any) => {

@@ -1,4 +1,4 @@
-import { lazy } from "react";
+import { lazy, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { useStore } from "@/Store";
@@ -13,7 +13,18 @@ const Home = lazy(() => import("@/Pages/Home"));
 const AppRouter = () => {
   const {
     state: { loggedIn },
+    dispatch,
   } = useStore();
+
+  useEffect(() => {
+    const auth = localStorage.getItem("auth");
+    if (auth) {
+      dispatch({
+        type: "SET_USER_AUTH",
+        payload: auth === "true" ? true : false,
+      });
+    }
+  }, []);
 
   return (
     <Layout>

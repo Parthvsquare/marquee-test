@@ -1,5 +1,11 @@
 import { useStore } from "@/Store";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+
+interface IFormInput {
+  email: string;
+  password: string;
+}
 
 function AuthPage() {
   const { dispatch } = useStore();
@@ -10,13 +16,21 @@ function AuthPage() {
       type: "SET_USER_AUTH",
       payload: true,
     });
+    localStorage.setItem("auth", JSON.stringify(true));
     navigate("/");
   };
+
+  const { register, handleSubmit } = useForm<IFormInput>();
+  const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data);
 
   return (
     <div className="flex h-[calc(100vh_-_64px)] w-screen items-center justify-center">
       <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800 sm:p-6 md:p-8">
-        <form className="space-y-6" action="#">
+        <form
+          className="space-y-6"
+          action="#"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <h5 className="text-xl font-medium text-gray-900 dark:text-white">
             Sign in to our platform
           </h5>

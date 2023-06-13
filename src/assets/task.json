@@ -1,0 +1,40 @@
+[
+  {
+    "id": 1,
+    "title": "Grocery Shopping",
+    "description": "Buy groceries for the week",
+    "due_date": "2023-06-15",
+    "completed": false,
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "Buy fruits",
+        "completed": true
+      },
+      {
+        "id": 2,
+        "title": "Buy vegetables",
+        "completed": true
+      },
+      {
+        "id": 3,
+        "title": "Buy milk",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Laundry",
+    "description": "Wash and fold clothes",
+    "due_date": "2023-06-14",
+    "completed": false
+  },
+  {
+    "id": 3,
+    "title": "Pay bills",
+    "description": "Clear pending utility bills",
+    "due_date": "2023-06-20",
+    "completed": false
+  }
+]
